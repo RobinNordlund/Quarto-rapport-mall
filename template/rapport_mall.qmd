@@ -1,19 +1,5 @@
 ---
 title: "[ÄNDRA] Din rapporttitel här"
-format:
-  html:
-    css: styles/styles.css  
-    toc: true
-    toc-depth: 2
-    toc-title: "Innehåll:"
-    toc-location: right
-    number-sections: false
-    fig-cap-location: bottom
-execute:
-  echo: false
-  warning: false
-  message: false
-lang: sv
 editor: visual
 ---
 
