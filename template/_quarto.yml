@@ -1,0 +1,82 @@
+# Quarto konfiguration för Göteborgs Stads rapportmall
+# 
+# Denna fil innehåller standardinställningar som gäller för alla
+# .qmd-filer i projektet. Individuella .qmd-filer kan överskrida
+# dessa inställningar i sin egen YAML-header.
+
+project:
+  type: default
+  output-dir: _output
+
+# Standardformat för HTML-output
+format:
+  html:
+    # Styling
+    theme: cosmo
+    css: styles/styles.css
+    
+    # Innehållsförteckning
+    toc: true
+    toc-depth: 2
+    toc-title: "Innehåll:"
+    toc-location: right
+    
+    # Numrering
+    number-sections: false
+    number-depth: 3
+    
+    # Figurer och tabeller
+    fig-cap-location: bottom
+    tbl-cap-location: top
+    fig-width: 8
+    fig-height: 5
+    
+    # Kod
+    code-fold: false
+    code-tools: false
+    code-link: false
+    
+    # Layout
+    page-layout: article
+    grid:
+      sidebar-width: 250px
+      body-width: 900px
+      margin-width: 250px
+    
+    # Metadata
+    date-format: "YYYY-MM-DD"
+    
+    # Rendering
+    embed-resources: false
+    self-contained: false
+
+# Kodexekvering
+execute:
+  echo: false
+  warning: false
+  message: false
+  error: false
+  cache: false
+  freeze: false
+
+# Språk
+lang: sv
+
+# Editor
+editor: visual
+
+# Alternativa format (avkommenteras vid behov)
+# 
+# format:
+#   docx:
+#     reference-doc: template.docx
+#   
+#   pdf:
+#     documentclass: article
+#     papersize: a4
+#     geometry:
+#       - margin=2.5cm
+#   
+#   revealjs:
+#     theme: simple
+#     transition: slide

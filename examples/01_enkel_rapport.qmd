@@ -1,0 +1,117 @@
+---
+title: "Enkel exempel-rapport"
+format:
+  html:
+    css: ../template/styles/styles.css  
+    toc: true
+    toc-depth: 2
+    toc-title: "Innehåll:"
+    toc-location: right
+execute:
+  echo: false
+  warning: false
+  message: false
+lang: sv
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Ladda funktioner och paket
+source("../R/functions/visualisering_interaktiva_funktioner.R")
+library(tidyverse)
+library(ggiraph)
+library(downloadthis)
+```
+
+```{r}
+#| label: data
+#| include: false
+
+# Skapa enkel exempeldata
+data <- tibble(
+  år = 2015:2024,
+  befolkning = c(1000, 1100, 1150, 1200, 1300, 1350, 1400, 1450, 1500, 1550)
+)
+```
+
+# Min första Quarto-rapport
+
+Detta är en minimal exempel-rapport som visar grundläggande funktionalitet.
+
+## Introduktion
+
+Denna rapport visar befolkningsutvecklingen i ett fiktivt område mellan 2015 och 2024.
+
+## Resultat
+
+### Befolkningsutveckling
+
+```{r}
+#| label: befolkning-diagram
+
+# 1. Skapa tooltip
+tooltip_data <- data |>
+  skapa_tooltip(
+    data = cur_data(),
+    gruppvars = c("år"),
+    grupp_labels = c(år = "År"),
+    data_vars = c("befolkning"),
+    data_labels = c(befolkning = "Befolkning"),
+    data_format = c(befolkning = "nummer")
+  )
+
+# 2. Joina tillbaka
+plot_data <- data |>
+  left_join(tooltip_data, by = "år")
+
+# 3. Skapa plot
+plot <- plot_data |>
+  ggplot(aes(x = år, y = befolkning)) +
+  geom_line_interactive(
+    aes(data_id = år, tooltip = tooltip_text),
+    linewidth = 0.6,
+    color = "#0076bc"
+  ) +
+  geom_point_interactive(
+    aes(data_id = år, tooltip = tooltip_text),
+    size = 2,
+    color = "#0076bc"
+  ) +
+  scale_y_continuous(
+    labels = scales::comma_format(big.mark = " "),
+    expand = expansion(mult = c(0, 0.1))
+  ) +
+  labs(
+    title = "Befolkningsutveckling över tid",
+    subtitle = "Exempelområde, 2015-2024",
+    x = "",
+    y = "Antal invånare",
+    caption = "Källa: Exempeldata"
+  ) +
+  theme_minimal()
+
+# 4. Gör interaktiv
+skapa_interaktiv_plot(
+  plot_objekt = plot,
+  export_data = plot_data,
+  kolumn_mappning = c("År" = "år", "Befolkning" = "befolkning"),
+  output_namn = "befolkning_utveckling",
+  width = 8,
+  height = 5,
+  hover_r = 3
+)
+```
+
+Befolkningen har ökat stadigt under perioden, från 1 000 invånare år 2015 till 1 550 invånare år 2024.
+
+## Sammanfattning
+
+Denna enkla rapport visar hur du:
+- Laddar data
+- Skapar tooltips
+- Gör diagram interaktiva
+- Renderar en HTML-rapport
+
+**Nästa steg:** Se `02_fullstandig_rapport.qmd` för fler exempel med highlight-boxes, tabbar och mer avancerade diagram.
