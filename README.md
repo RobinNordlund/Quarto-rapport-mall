@@ -37,25 +37,29 @@ Denna mall ger dig:
 ## Innehåll
 
 ```
-quarto-rapport-mall/
-├── template/                    # Kopiera denna mapp!
-│   ├── rapport_mall.qmd        # Huvudmallen
-│   ├── _quarto.yml             # Quarto-konfiguration
-│   ├── styles/
-│   │   └── styles.css          # CSS-styling
-│   └── assets/
-│       └── rapporthuvud.svg    # Sidhuvud
+projekt/
+├── template/                    # DIN ARBETSMAPP
+│   ├── _quarto.yml             # Globala inställningar (viktigt!)
+│   ├── template.qmd            # Din utgångspunkt
+│   ├── exempel/                # Lär dig från färdiga exempel
+│   │   ├── 01_enkel_rapport.qmd
+│   │   └── 02_avancerad_rapport.qmd
+│   └── styles/
+│       └── styles.css          # Göteborg Stads styling
 │
 ├── R/
 │   └── functions/
-│       └── visualisering_interaktiva_funktioner.R
+│       └── visualisering_interaktiva_funktioner.R  # Funktioner för diagram
 │
-├── examples/                    # Exempel att lära av
-│   ├── 01_enkel_rapport.qmd
-│   └── 02_fullstandig_rapport.qmd
+├── docs/
+│   └── anvandning.md           # Fullständig användarguide
 │
-└── docs/
-    └── funktioner_katalog.md    # Dokumentation
+├── data/                       # Din data (ej i Git om känslig)
+│   ├── raw/                    # Originaldata (ÄNDRAS ALDRIG)
+│   └── processed/              # Bearbetad data (.rds)
+│
+└── output/
+    └── reports/                # Färdiga rapporter hamnar här
 ```
 
 ## Features
