@@ -25,12 +25,6 @@ format:
     number-sections: false
     number-depth: 3
     
-    # Figurer och tabeller
-    fig-cap-location: bottom
-    tbl-cap-location: top
-    fig-width: 8
-    fig-height: 5
-    
     # Kod
     code-fold: false
     code-tools: false
