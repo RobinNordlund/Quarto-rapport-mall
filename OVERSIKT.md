@@ -92,11 +92,11 @@ quarto-rapport-mall/
 │
 ├── template/             # ★ KOPIERA DENNA ★
 │   ├── rapport_mall.qmd
+│   ├── examples/         # Exempel
 │   ├── styles/styles.css
 │   └── assets/
 │
 ├── R/functions/          # Funktioner
-├── examples/             # Exempel
 └── docs/                 # Dokumentation
 ```
 
