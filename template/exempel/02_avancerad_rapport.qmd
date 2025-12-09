@@ -1,0 +1,248 @@
+---
+title: "Avancerad exempel-rapport"
+---
+
+# Introduktion
+
+Detta exempel visar mer avancerade funktioner:
+
+- Flera interaktiva diagram
+- Olika typer av visualiseringar
+- Tabbar för att växla mellan vyer
+- Anpassade hover-effekter
+
+## Ladda paket och funktioner
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+library(ggiraph)
+library(downloadthis)
+library(htmltools)
+library(glue)
+
+# Läs in visualiseringsfunktioner
+source(here::here("R", "functions", "visualisering_interaktiva_funktioner.R"))
+```
+
+## Skapa exempeldata
+
+```{r}
+#| label: create-data
+
+# Data för flera stadsdelar
+data_stadsdelar <- tibble(
+  stadsdel = rep(c("Centrum", "Hisingen", "Öster", "Väster", "Askim-Frölunda"), each = 10),
+  år = rep(2015:2024, 5),
+  befolkning = c(
+    # Centrum
+    45000, 46000, 46500, 47000, 47500, 48000, 48500, 49000, 49500, 50000,
+    # Hisingen
+    135000, 137000, 139000, 141000, 143000, 145000, 147000, 149000, 151000, 153000,
+    # Öster
+    120000, 122000, 124000, 126000, 128000, 130000, 132000, 134000, 136000, 138000,
+    # Väster
+    150000, 152000, 154000, 156000, 158000, 160000, 162000, 164000, 166000, 168000,
+    # Askim-Frölunda
+    100000, 101000, 102000, 103000, 104000, 105000, 106000, 107000, 108000, 109000
+  )
+)
+
+# Beräkna andel av total befolkning
+data_stadsdelar <- data_stadsdelar |>
+  group_by(år) |>
+  mutate(
+    total = sum(befolkning),
+    andel = (befolkning / total) * 100
+  ) |>
+  ungroup()
+```
+
+## Flera linjer med interaktivitet
+
+```{r}
+#| label: fig-stadsdelar
+#| fig-cap: "Befolkningsutveckling per stadsdel 2015-2024"
+
+# Skapa tooltip med flera variabler
+data_med_tooltip <- data_stadsdelar |>
+  mutate(
+    tooltip = skapa_tooltip(
+      data = cur_data(),
+      gruppvars = c("stadsdel", "år"),
+      data_vars = c("befolkning", "andel"),
+      grupp_labels = c("stadsdel" = "Stadsdel", "år" = "År"),
+      data_labels = c("befolkning" = "Befolkning", "andel" = "Andel av totalt"),
+      data_format = c("befolkning" = "nummer", "andel" = "procent"),
+      decimaler = 1
+    )$tooltip_text
+  )
+
+# Skapa plot med färger per stadsdel
+p <- data_med_tooltip |>
+  ggplot(aes(x = år, y = befolkning, color = stadsdel, group = stadsdel)) +
+  geom_line_interactive(
+    aes(data_id = stadsdel, tooltip = tooltip),
+    linewidth = 1.2
+  ) +
+  geom_point_interactive(
+    aes(data_id = stadsdel, tooltip = tooltip),
+    size = 2.5
+  ) +
+  scale_color_manual(
+    values = c(
+      "Centrum" = "#0076bc",
+      "Hisingen" = "#3399cc", 
+      "Öster" = "#84b547",
+      "Väster" = "#d5007f",
+      "Askim-Frölunda" = "#f39200"
+    )
+  ) +
+  scale_y_continuous(
+    labels = scales::label_number(big.mark = " "),
+    limits = c(0, NA)
+  ) +
+  labs(
+    x = "År",
+    y = "Befolkning",
+    color = "Stadsdel"
+  ) +
+  theme_minimal() +
+  theme(
+    text = element_text(family = "sans-serif", size = 11),
+    plot.title = element_text(size = 14, face = "bold", color = "#3F5664"),
+    axis.title = element_text(size = 11, color = "#3F5664"),
+    legend.position = "bottom"
+  )
+
+# Gör interaktiv med anpassad hover
+skapa_interaktiv_plot(
+  plot_objekt = p,
+  export_data = data_stadsdelar |> select(stadsdel, år, befolkning, andel),
+  kolumn_mappning = c(
+    "stadsdel" = "Stadsdel", 
+    "år" = "År", 
+    "befolkning" = "Befolkning",
+    "andel" = "Andel (%)"
+  ),
+  output_namn = "stadsdelar_befolkning",
+  width = 10,
+  height = 6,
+  hover_inv_opacity = 0.3  # Tona ner andra linjer vid hover
+)
+```
+
+**Interaktivitet:** Hovra över olika linjer - övriga linjer tonas ner för att framhäva den valda.
+
+## Punktdiagram med hover-effekt
+
+```{r}
+#| label: fig-scatter
+#| fig-cap: "Senaste årets befolkning per stadsdel"
+
+# Data för senaste året
+data_2024 <- data_stadsdelar |>
+  filter(år == 2024) |>
+  arrange(desc(befolkning))
+
+# Tooltip
+data_2024_tooltip <- data_2024 |>
+  mutate(
+    tooltip = skapa_tooltip(
+      data = cur_data(),
+      gruppvars = c("stadsdel"),
+      data_vars = c("befolkning", "andel"),
+      grupp_labels = c("stadsdel" = "Stadsdel"),
+      data_labels = c("befolkning" = "Befolkning", "andel" = "Andel"),
+      data_format = c("befolkning" = "nummer", "andel" = "procent")
+    )$tooltip_text
+  )
+
+# Skapa plot
+p2 <- data_2024_tooltip |>
+  ggplot(aes(x = reorder(stadsdel, befolkning), y = befolkning)) +
+  geom_col_interactive(
+    aes(data_id = stadsdel, tooltip = tooltip, fill = stadsdel),
+    width = 0.7
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Centrum" = "#0076bc",
+      "Hisingen" = "#3399cc", 
+      "Öster" = "#84b547",
+      "Väster" = "#d5007f",
+      "Askim-Frölunda" = "#f39200"
+    )
+  ) +
+  scale_y_continuous(
+    labels = scales::label_number(big.mark = " "),
+    expand = expansion(mult = c(0, 0.1))
+  ) +
+  labs(
+    x = NULL,
+    y = "Befolkning 2024"
+  ) +
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    text = element_text(family = "sans-serif", size = 11),
+    plot.title = element_text(size = 14, face = "bold", color = "#3F5664"),
+    axis.title = element_text(size = 11, color = "#3F5664"),
+    legend.position = "none"
+  )
+
+# Gör interaktiv
+skapa_interaktiv_plot(
+  plot_objekt = p2,
+  export_data = data_2024 |> select(stadsdel, befolkning, andel),
+  kolumn_mappning = c(
+    "stadsdel" = "Stadsdel", 
+    "befolkning" = "Befolkning 2024",
+    "andel" = "Andel (%)"
+  ),
+  output_namn = "stadsdelar_2024",
+  width = 8,
+  height = 6
+)
+```
+
+## Sammanfattning
+
+Detta avancerade exempel visar:
+
+- ✅ Flera interaktiva diagram i samma rapport
+- ✅ Anpassade hover-effekter (tona ner andra element)
+- ✅ Komplexa tooltips med flera variabler
+- ✅ Svensk formatering (procent, tusental)
+- ✅ Göteborg Stads färgpalett
+- ✅ Professionell layout
+
+## Tekniska detaljer
+
+### Hover-effekter
+
+Parametern `hover_inv_opacity = 0.3` i linjediagrammet gör att icke-hovererade linjer tonas ner till 30% opacitet, vilket framhäver den valda linjen.
+
+### Tooltip-formatering
+
+Funktionen `skapa_tooltip()` stödjer olika format:
+
+- `"nummer"` - Heltal med mellanslag (t.ex. "150 000")
+- `"decimal"` - Decimaltal med komma (t.ex. "1 234,5")  
+- `"procent"` - Procent med komma (t.ex. "23,4 %")
+- `"text"` - Oformaterat
+
+### Nedladdning
+
+Varje diagram kan laddas ner som:
+
+- **PNG** - Högupplöst bild (300 DPI)
+- **Excel** - Data i .xlsx-format
+- **CSV** - Data i .csv-format
+
+## Nästa steg
+
+- Använd `../template.qmd` för dina egna rapporter
+- Läs `../docs/anvandning.md` för fullständig dokumentation
+- Experimentera med olika hover-effekter och tooltips
