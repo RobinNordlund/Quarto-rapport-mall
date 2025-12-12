@@ -1,6 +1,6 @@
 # Quarto-rapportmall - Snabböversikt
 
-**Standardiserad mall för interaktiva rapporter | Version 1.0 | 2025-12-01**
+**Standardiserad mall för interaktiva rapporter | Version 1.1 | 2025-12-12**
 
 ---
 
@@ -12,12 +12,13 @@ En färdig mall för att skapa professionella, interaktiva rapporter i Quarto me
 - ✅ Interaktiva diagram med hover-effekter
 - ✅ Nedladdningsfunktioner (PNG, Excel, CSV)
 - ✅ Färdiga komponenter (highlight-box, tabbar)
+- ✅ Anpassade ggplot2-teman för olika diagramtyper
 - ✅ Fullständig dokumentation
 
 ## Kom igång på 5 minuter
 
 ```r
-# 1. Kopiera template/ till ditt projekt
+# 1. Kopiera template/ till ditt projekt (innehåller nu allt!)
 # 2. Öppna rapport_mall.qmd
 # 3. Ändra titel och författare
 # 4. Rendera med Ctrl+Shift+K
@@ -40,6 +41,7 @@ En färdig mall för att skapa professionella, interaktiva rapporter i Quarto me
 - **Nedladdning**: PNG, Excel, CSV
 - **Helskärm**: Förstora diagram
 - **Anpassningsbara tooltips**
+- **5 färdiga teman**: För olika diagramtyper
 
 ### 🧩 Komponenter
 - **Highlight-box**: Framhäv viktig info
@@ -50,7 +52,7 @@ En färdig mall för att skapa professionella, interaktiva rapporter i Quarto me
 
 ## Exempel
 
-### Enkelt linjediagram med tooltip
+### Enkelt linjediagram med tema och tooltip
 
 ```r
 # 1. Skapa tooltip
@@ -64,10 +66,11 @@ tooltip_data <- data |>
 # 2. Joina
 plot_data <- data |> left_join(tooltip_data, by = "år")
 
-# 3. Skapa plot
+# 3. Skapa plot med tema
 p <- plot_data |>
   ggplot(aes(x = år, y = befolkning)) +
-  geom_line_interactive(aes(data_id = år, tooltip = tooltip_text))
+  geom_line_interactive(aes(data_id = år, tooltip = tooltip_text)) +
+  tema_s_v  # Vertikala stödlinjer för tidsserier
 
 # 4. Gör interaktiv
 skapa_interaktiv_plot(
@@ -89,16 +92,22 @@ quarto-rapport-mall/
 ├── README.md              # Översikt
 ├── SNABBGUIDE.md         # Steg-för-steg
 ├── CHECKLISTA.md         # För nya projekt
+├── KOMPONENTGUIDE.md     # Guide för komponenter
 │
 ├── template/             # ★ KOPIERA DENNA ★
-│   ├── rapport_mall.qmd
-│   ├── examples/         # Exempel
+│   ├── rapport_mall.qmd  # Mall med exempel
+│   ├── _quarto.yml
 │   ├── styles/styles.css
-│   └── assets/
+│   ├── assets/
+│   └── R/functions/      # Funktioner (NYA PLATSEN!)
+│       ├── visualisering_interaktiva_funktioner.R
+│       └── visualisering_tema_diagram.R
 │
-├── R/functions/          # Funktioner
 └── docs/                 # Dokumentation
+    └── funktioner_katalog.md
 ```
+
+**Nytt i v1.1:** Funktioner ligger nu i `template/R/functions/`!
 
 ---
 
@@ -109,6 +118,7 @@ quarto-rapport-mall/
 | `SNABBGUIDE.md` | Nybörjare | 5 min |
 | `README.md` | Alla | 10 min |
 | `CHECKLISTA.md` | Vid nytt projekt | 15 min |
+| `KOMPONENTGUIDE.md` | För komponenter | 15 min |
 | `funktioner_katalog.md` | Utvecklare | 30 min |
 
 ---
@@ -127,6 +137,20 @@ install.packages(c("tidyverse", "ggiraph", "downloadthis",
 
 ---
 
+## Teman för diagram
+
+**Välj rätt tema för ditt diagram:**
+
+| Diagramtyp | Tema | När använda |
+|------------|------|-------------|
+| Kartor | `tema_karta` | Geografiska kartor |
+| Enkla diagram | `tema_inga_s` | Värden visas som text |
+| Tidsserier | `tema_s_v` | Linjediagram över tid |
+| Stapeldiagram | `tema_s_h` | Vertikala/horisontella staplar |
+| Scatterplots | `tema_s_h_v` | Punktdiagram |
+
+---
+
 ## Support
 
 **Internt**: statistisk.analys@stadshuset.goteborg.se
@@ -134,18 +158,27 @@ install.packages(c("tidyverse", "ggiraph", "downloadthis",
 **Dokumentation**: 
 - Snabbstart: `SNABBGUIDE.md`
 - Fullständig: `README.md`
+- Komponenter: `KOMPONENTGUIDE.md`
 - Funktioner: `docs/funktioner_katalog.md`
-
-**Exempel**: Se `examples/` för konkreta exempel
+- Exempel: `template/rapport_mall.qmd`
 
 ---
 
 ## Nästa steg
 
 1. **Läs**: `SNABBGUIDE.md` (5 min)
-2. **Testa**: `examples/01_enkel_rapport.qmd`
-3. **Kopiera**: `template/` till ditt projekt
+2. **Kopiera**: `template/` till ditt projekt
+3. **Utforska**: `rapport_mall.qmd` för exempel
 4. **Skapa**: Din första rapport!
+
+---
+
+## Vad är nytt i v1.1?
+
+- ✨ **Förenklad struktur**: Funktioner ligger nu i `template/R/functions/`
+- 🎨 **Nya teman**: 5 färdiga ggplot2-teman för olika diagramtyper
+- 📚 **Bättre exempel**: Allt finns i `rapport_mall.qmd`
+- 🗑️ **Rensat**: Tagit bort examples/ - exempel finns i mallen
 
 ---
 

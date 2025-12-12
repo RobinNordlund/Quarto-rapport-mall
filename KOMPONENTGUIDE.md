@@ -4,6 +4,51 @@ Guide för hur du använder de olika komponenterna i mallen.
 
 ---
 
+## Datumhantering
+
+### Varför speciell hantering?
+
+Mallen döljer Quarto's standard title block (för att visa rapporthuvudbilden först). Därför hanteras datum manuellt.
+
+### Sätt rapportdatum
+
+**I första setup-chunken:**
+```r
+```{r}
+#| label: setup-datum
+#| include: false
+
+# Dagens datum automatiskt
+rapport_datum <- Sys.Date()
+
+# ELLER specifikt datum
+rapport_datum <- as.Date("2024-12-12")
+```
+```
+
+### Visa datum i rapporten
+
+**Under rapporthuvudbilden:**
+```markdown
+<p style="color: #666; font-size: 11pt; margin-top: 5px; margin-bottom: 5px;">
+**Utgiven:** `r format(rapport_datum, "%d %B %Y")`
+</p>
+```
+
+### Anpassa datumformat
+
+```r
+# Svenska månadnamn (lägg i setup-chunken)
+Sys.setlocale("LC_TIME", "sv_SE.UTF-8")
+
+# Olika format:
+format(rapport_datum, "%d %B %Y")      # "12 december 2024"
+format(rapport_datum, "%Y-%m-%d")      # "2024-12-12"
+format(rapport_datum, "%A %d %B %Y")   # "Torsdag 12 december 2024"
+```
+
+---
+
 ## Highlight-box
 
 ### Vad är det?
@@ -100,7 +145,8 @@ Innehåll för tredje fliken
 ```{r}
 # Diagram med absoluta tal
 ggplot(data, aes(x = kategori, y = antal)) +
-  geom_col()
+  geom_col() +
+  tema_s_h
 ```
 
 ### Andel
@@ -108,7 +154,8 @@ ggplot(data, aes(x = kategori, y = antal)) +
 ```{r}
 # Diagram med andelar
 ggplot(data, aes(x = kategori, y = andel)) +
-  geom_col()
+  geom_col() +
+  tema_s_h
 ```
 :::
 ```
@@ -161,7 +208,7 @@ plot_data <- data |>
   left_join(tooltip_data, by = "år")
 ```
 
-#### Steg 3: Skapa ggplot
+#### Steg 3: Skapa ggplot med tema
 
 ```r
 plot <- plot_data |>
@@ -169,7 +216,7 @@ plot <- plot_data |>
   geom_line_interactive(
     aes(data_id = år, tooltip = tooltip_text)
   ) +
-  theme_minimal()
+  tema_s_v  # Välj lämpligt tema!
 ```
 
 **OBS**: Använd alltid `*_interactive` versioner!
@@ -220,6 +267,74 @@ skapa_interaktiv_plot(
   hover_inv_opacity = 0.3  # 0 = osynlig, 1 = fullt synlig
 )
 ```
+
+---
+
+## Teman för diagram
+
+### Tillgängliga teman
+
+Template innehåller 5 färdiga teman i `R/functions/visualisering_tema_diagram.R`:
+
+#### tema_karta
+**För**: Geografiska kartor  
+**Kännetecken**: Inga axlar eller rutnät
+
+```r
+ggplot(kartor_data) +
+  geom_sf(aes(fill = värde)) +
+  tema_karta
+```
+
+#### tema_inga_s
+**För**: Enkla diagram där värden visas som text  
+**Kännetecken**: Inga stödlinjer
+
+```r
+ggplot(data, aes(x = kategori, y = antal)) +
+  geom_col() +
+  geom_text(aes(label = antal), vjust = -0.5) +
+  tema_inga_s
+```
+
+#### tema_s_v
+**För**: Tidsserier  
+**Kännetecken**: Vertikala stödlinjer
+
+```r
+ggplot(data, aes(x = år, y = befolkning)) +
+  geom_line() +
+  tema_s_v
+```
+
+#### tema_s_h
+**För**: Stapeldiagram  
+**Kännetecken**: Horisontella stödlinjer
+
+```r
+ggplot(data, aes(x = kategori, y = värde)) +
+  geom_col() +
+  tema_s_h
+```
+
+#### tema_s_h_v
+**För**: Scatterplots och komplexa diagram  
+**Kännetecken**: Både horisontella och vertikala stödlinjer
+
+```r
+ggplot(data, aes(x = x_var, y = y_var)) +
+  geom_point() +
+  tema_s_h_v
+```
+
+### Välj rätt tema
+
+**Beslutsmatris:**
+- Karta? → `tema_karta`
+- Värden på staplar? → `tema_inga_s`
+- Tidsserie? → `tema_s_v`
+- Stapeldiagram? → `tema_s_h`
+- Scatterplot? → `tema_s_h_v`
 
 ---
 
@@ -337,13 +452,14 @@ Se [Avsnitt 2](#avsnitt-2) för mer information.
 
 ✅ **Gör:**
 - Använd beskrivande titlar och captions
+- Välj lämpligt tema för diagramtyp
 - Formatera axlar läsbart
 - Välj färger med kontrast i åtanke
 - Testa tooltips
 
 ❌ **Undvik:**
 - Fler än 7 färger i samma diagram
-- Småttryckta etiketter
+- Småtryckta etiketter
 - Diagram utan titel
 
 ### Innehåll
@@ -362,6 +478,19 @@ Se [Avsnitt 2](#avsnitt-2) för mer information.
 ---
 
 ## Snabbreferens
+
+### Datum-setup
+
+```r
+# I setup-datum chunken
+rapport_datum <- Sys.Date()  # Eller as.Date("2024-12-12")
+
+# Svenska månadnamn
+Sys.setlocale("LC_TIME", "sv_SE.UTF-8")
+
+# Visa datum
+**Utgiven:** `r format(rapport_datum, "%d %B %Y")`
+```
 
 ### Tooltip-mall
 
@@ -385,10 +514,11 @@ tooltip_data <- data |> skapa_tooltip(...)
 # 2. Join
 plot_data <- data |> left_join(tooltip_data, by = "...")
 
-# 3. ggplot
+# 3. ggplot med tema
 plot <- plot_data |>
   ggplot(aes(...)) +
-  geom_X_interactive(aes(data_id = ..., tooltip = tooltip_text))
+  geom_X_interactive(aes(data_id = ..., tooltip = tooltip_text)) +
+  tema_XXXX  # Välj lämpligt tema!
 
 # 4. Interaktiv
 skapa_interaktiv_plot(
@@ -424,6 +554,5 @@ Innehåll
 ---
 
 **För fler exempel, se:**
-- `examples/01_enkel_rapport.qmd`
-- `examples/02_fullstandig_rapport.qmd`
-- `template/rapport_mall.qmd`
+- `template/rapport_mall.qmd` - Arbetande mall med exempel
+- `docs/funktioner_katalog.md` - Fullständig funktionsdokumentation

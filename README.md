@@ -11,6 +11,7 @@ Denna mall ger dig:
 - ✅ **Färdiga komponenter** som highlight-box och tabbar
 - ✅ **CSS-styling** för typsnitt, färger och layout
 - ✅ **Dokumenterade funktioner** för visualisering
+- ✅ **Anpassade ggplot2-teman** för enhetliga diagram
 
 ## Snabbstart
 
@@ -37,29 +38,32 @@ Denna mall ger dig:
 ## Innehåll
 
 ```
-projekt/
-├── template/                    # DIN ARBETSMAPP
-│   ├── _quarto.yml             # Globala inställningar (viktigt!)
-│   ├── template.qmd            # Din utgångspunkt
-│   ├── exempel/                # Lär dig från färdiga exempel
-│   │   ├── 01_enkel_rapport.qmd
-│   │   └── 02_avancerad_rapport.qmd
-│   └── styles/
-│       └── styles.css          # Göteborg Stads styling
+quarto-rapport-mall/
+├── README.md                    # Huvuddokumentation
+├── SNABBGUIDE.md               # Steg-för-steg guide (5 min)
+├── CHECKLISTA.md               # För nya projekt
+├── KOMPONENTGUIDE.md           # Guide för komponenter
+├── OVERSIKT.md                 # Snabböversikt
+├── LICENSE                      # MIT License
+├── .gitignore                   # Git-ignorering
 │
-├── R/
-│   └── functions/
-│       └── visualisering_interaktiva_funktioner.R  # Funktioner för diagram
+├── template/                    # ★ KOPIERA DENNA MAPP ★
+│   ├── rapport_mall.qmd        # Huvudmallen med instruktioner
+│   ├── _quarto.yml             # Quarto-konfiguration
+│   │
+│   ├── styles/
+│   │   └── styles.css          # CSS-styling (typsnitt, färger)
+│   │
+│   ├── assets/
+│   │   └── README.md           # Info om rapporthuvud
+│   │
+│   └── R/
+│       └── functions/
+│           ├── visualisering_interaktiva_funktioner.R
+│           └── visualisering_tema_diagram.R
 │
-├── docs/
-│   └── anvandning.md           # Fullständig användarguide
-│
-├── data/                       # Din data (ej i Git om känslig)
-│   ├── raw/                    # Originaldata (ÄNDRAS ALDRIG)
-│   └── processed/              # Bearbetad data (.rds)
-│
-└── output/
-    └── reports/                # Färdiga rapporter hamnar här
+└── docs/
+    └── funktioner_katalog.md   # Fullständig funktionsdokumentation
 ```
 
 ## Features
@@ -77,6 +81,7 @@ projekt/
 - **Nedladdning**: PNG (diagram) och Excel/CSV (data)
 - **Helskärm**: Förstora diagram för presentation
 - **Anpassningsbara tooltips**: Formatera efter behov
+- **Anpassade teman**: 5 färdiga ggplot2-teman för olika diagramtyper
 
 ### 🧩 Återanvändbara komponenter
 
@@ -104,11 +109,12 @@ install.packages(c(
 
 ## Exempel
 
-### Enkelt linjediagram
+### Enkelt linjediagram med tema
 
 ```r
 library(tidyverse)
 source("R/functions/visualisering_interaktiva_funktioner.R")
+source("R/functions/visualisering_tema_diagram.R")
 
 # Skapa tooltip
 tooltip_data <- data |>
@@ -124,13 +130,18 @@ tooltip_data <- data |>
 plot_data <- data |>
   left_join(tooltip_data, by = "år")
 
-# Skapa plot
+# Skapa plot med anpassat tema
 p <- plot_data |>
   ggplot(aes(x = år, y = befolkning)) +
   geom_line_interactive(
     aes(tooltip = tooltip_text, data_id = år)
   ) +
-  theme_minimal()
+  labs(
+    title = "Befolkningsutveckling",
+    x = "År",
+    y = "Antal invånare"
+  ) +
+  tema_s_v  # Tema med vertikala stödlinjer för tidsserier
 
 # Gör interaktiv
 skapa_interaktiv_plot(
@@ -141,29 +152,37 @@ skapa_interaktiv_plot(
 )
 ```
 
-Se `examples/` för fler exempel!
+Se `template/rapport_mall.qmd` för fler exempel!
 
 ## Dokumentation
 
 - **[SNABBGUIDE.md](SNABBGUIDE.md)** - Kom igång på 5 minuter
+- **[CHECKLISTA.md](CHECKLISTA.md)** - Checklista för nya projekt
+- **[KOMPONENTGUIDE.md](KOMPONENTGUIDE.md)** - Guide för alla komponenter
 - **[docs/funktioner_katalog.md](docs/funktioner_katalog.md)** - Fullständig funktionsdokumentation
-- **[examples/](examples/)** - Konkreta exempel att utgå från
+- **[template/rapport_mall.qmd](template/rapport_mall.qmd)** - Arbetande mall med exempel
 
 ## Användning
 
 ### Kopiera mallen
 
+**Alternativ 1: Kopiera bara template/**
 ```bash
 # 1. Skapa ditt projekt
 mkdir mitt-projekt
 cd mitt-projekt
 
-# 2. Kopiera template/
+# 2. Kopiera hela template/ (inklusive R/functions/)
 cp -r ../quarto-rapport-mall/template/* .
+```
 
-# 3. Kopiera R-funktioner
-mkdir -p R/functions
-cp ../quarto-rapport-mall/R/functions/visualisering_interaktiva_funktioner.R R/functions/
+**Alternativ 2: Klona hela repositoryt**
+```bash
+# 1. Klona från GitHub
+git clone https://github.com/ditt-användarnamn/quarto-rapport-mall.git
+
+# 2. Kopiera template till nytt projekt
+cp -r quarto-rapport-mall/template/* mitt-projekt/
 ```
 
 ### Anpassa efter behov
@@ -176,6 +195,7 @@ cp ../quarto-rapport-mall/R/functions/visualisering_interaktiva_funktioner.R R/f
 ### Best practices
 
 - ✅ Använd `skapa_tooltip()` för alla interaktiva diagram
+- ✅ Välj lämpligt tema från `visualisering_tema_diagram.R`
 - ✅ Testa alltid att diagram fungerar i renderad HTML
 - ✅ Använd beskrivande namn för output-filer
 - ✅ Dokumentera vad dina diagram visar i caption
@@ -184,7 +204,7 @@ cp ../quarto-rapport-mall/R/functions/visualisering_interaktiva_funktioner.R R/f
 ## Vanliga frågor
 
 **Q: Funktionerna hittas inte när jag renderar?**  
-A: Se till att `source()` körs i början av din .qmd-fil och att sökvägen är korrekt.
+A: Funktionerna finns nu i `template/R/functions/`. Se till att sökvägen i `source()` stämmer: `source("R/functions/visualisering_interaktiva_funktioner.R")`
 
 **Q: Tooltips visas inte i renderad HTML?**  
 A: Kontrollera att du använder `_interactive` versioner av geoms (t.ex. `geom_line_interactive`) och att `data_id` och `tooltip` är mappade i `aes()`.
@@ -192,8 +212,12 @@ A: Kontrollera att du använder `_interactive` versioner av geoms (t.ex. `geom_l
 **Q: CSS-styling fungerar inte?**  
 A: Verifiera att `css: styles/styles.css` finns i YAML och att sökvägen stämmer relativt till din .qmd-fil.
 
-**Q: Hur ändrar jag färger i diagram?**  
-A: Använd `scale_color_gbg_*()` och `scale_fill_gbg_*()` funktionerna från MASTERSCRIPT.R eller anpassa manuellt.
+**Q: Vilket tema ska jag använda för mitt diagram?**  
+A: Se `visualisering_tema_diagram.R` för vägledning:
+- Kartor → `tema_karta`
+- Tidsserier → `tema_s_v`
+- Stapeldiagram → `tema_s_h`
+- Scatterplots → `tema_s_h_v`
 
 ## Support och feedback
 
@@ -212,6 +236,6 @@ MIT License - se [LICENSE](LICENSE) för detaljer.
 
 ---
 
-*Senast uppdaterad: 2025-12-01*
+*Senast uppdaterad: 2025-12-12*
 
 *Utvecklad av Stadsledningskontoret, Göteborgs Stad*

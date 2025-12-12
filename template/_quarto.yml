@@ -6,7 +6,6 @@
 
 project:
   type: default
-  output-dir: _output
 
 # Standardformat för HTML-output
 format:

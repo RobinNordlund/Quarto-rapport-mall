@@ -31,9 +31,8 @@ if(length(missing_packages) > 0) {
 
 ## ☐ Steg 2: Kopiera mall (5 min)
 
-### Kopiera filer
-- [ ] Kopiera `template/` till ditt projekt
-- [ ] Kopiera `R/functions/visualisering_interaktiva_funktioner.R` till `R/functions/`
+### Kopiera hela template/
+- [ ] Kopiera hela `template/` till ditt projekt (innehåller nu allt!)
 - [ ] Verifiera att filstrukturen ser korrekt ut
 
 ### Kontrollera struktur
@@ -47,8 +46,11 @@ ditt-projekt/
 │   └── README.md
 └── R/
     └── functions/
-        └── visualisering_interaktiva_funktioner.R
+        ├── visualisering_interaktiva_funktioner.R
+        └── visualisering_tema_diagram.R
 ```
+
+**OBS:** Funktionerna finns nu i template/R/functions/!
 
 ---
 
@@ -57,7 +59,7 @@ ditt-projekt/
 ### YAML-header
 - [ ] Ändra `title` till din rapporttitel
 - [ ] Lägg till ditt namn (valfritt)
-- [ ] Kontrollera att `css: styles/styles.css` är korrekt
+- [ ] Kontrollera att inställningar i `_quarto.yml` är korrekta
 
 ### Rapporthuvud
 - [ ] Behåll befintlig bild ELLER
@@ -66,7 +68,11 @@ ditt-projekt/
 
 ### Ladda funktioner
 - [ ] Kontrollera att sökvägen i `source()` är korrekt
-- [ ] Testa att funktioner laddas: `source("R/functions/visualisering_interaktiva_funktioner.R")`
+- [ ] Testa att funktioner laddas:
+  ```r
+  source("R/functions/visualisering_interaktiva_funktioner.R")
+  source("R/functions/visualisering_tema_diagram.R")
+  ```
 
 ---
 
@@ -104,6 +110,7 @@ data <- read_csv("data/raw/min_data.csv")
 - [ ] Joina tooltip till data
 - [ ] Skapa ggplot med `*_interactive` geoms
 - [ ] Lägg till `aes(data_id = ..., tooltip = tooltip_text)`
+- [ ] Välj lämpligt tema (tema_s_v, tema_s_h, etc.)
 
 ### Gör interaktiv
 - [ ] Använd `skapa_interaktiv_plot()`
@@ -114,14 +121,14 @@ data <- read_csv("data/raw/min_data.csv")
 - [ ] Rendera rapporten (Ctrl/Cmd + Shift + K)
 - [ ] Kontrollera att tooltip visas vid hover
 - [ ] Testa nedladdningsknappar
-- [ ] Testa helskärmsläge
+- [ ] Testa helskärmslä
 
 ---
 
 ## ☐ Steg 6: Bygg vidare (löpande)
 
 ### Innehåll
-- [ ] Ta bort exempeltext från mall
+- [ ] Ta bort eller anpassa exempeltext från mall
 - [ ] Skriv din egen introduktion
 - [ ] Lägg till fler sektioner efter behov
 - [ ] Använd highlight-box för viktig information
@@ -131,6 +138,7 @@ data <- read_csv("data/raw/min_data.csv")
 - [ ] Skapa fler diagram efter samma mönster
 - [ ] Testa olika geom-typer (line, point, col, area)
 - [ ] Experimentera med hover-effekter
+- [ ] Prova olika teman för olika diagramtyper
 
 ### Formatering
 - [ ] Lägg till beskrivande captions
@@ -213,6 +221,7 @@ data <- read_csv("data/raw/min_data.csv")
 ### Vid problem
 - [ ] Kontrollera SNABBGUIDE.md för vanliga fel
 - [ ] Se funktioner_katalog.md för funktionsdetaljer
+- [ ] Se rapport_mall.qmd för exempel
 - [ ] Kontakta statistikteamet vid behov
 
 ---
@@ -226,7 +235,7 @@ data <- read_csv("data/raw/min_data.csv")
 4. ✅ Håll kod organiserad i numrerade chunks
 
 **Kodning:**
-- 💡 Kopiera fungerande exempel innan du experimenterar
+- 💡 Använd rapport_mall.qmd som referens
 - 💡 Använd `View()` för att inspektera data
 - 💡 Skriv kommentarer medan du kodar
 - 💡 Dela upp komplicerad kod i flera steg
@@ -248,8 +257,9 @@ data <- read_csv("data/raw/min_data.csv")
 **Dokumentation:**
 - README.md - översikt
 - SNABBGUIDE.md - kom igång
+- KOMPONENTGUIDE.md - guide för komponenter
 - funktioner_katalog.md - funktionsdetaljer
-- examples/ - konkreta exempel
+- rapport_mall.qmd - arbetande exempel
 
 **Externt:**
 - [Quarto dokumentation](https://quarto.org)

@@ -22,14 +22,7 @@ Denna guide tar dig från noll till en färdig Quarto-rapport med interaktiva di
    )
    ```
 
-3. **Kopiera R-funktioner**
-   ```r
-   dir.create("R/functions", recursive = TRUE)
-   file.copy(
-     from = "sökväg/till/quarto-rapport-mall/R/functions/visualisering_interaktiva_funktioner.R",
-     to = "R/functions/"
-   )
-   ```
+**OBS:** Template innehåller nu både mall och funktioner! Allt du behöver finns i `template/`.
 
 ### Alternativt: I Terminal/Kommandotolk
 
@@ -38,10 +31,8 @@ Denna guide tar dig från noll till en färdig Quarto-rapport med interaktiva di
 mkdir min-rapport
 cd min-rapport
 
-# Kopiera filer
+# Kopiera hela template/ (inklusive R/functions/)
 cp -r ../quarto-rapport-mall/template/* .
-mkdir -p R/functions
-cp ../quarto-rapport-mall/R/functions/visualisering_interaktiva_funktioner.R R/functions/
 ```
 
 ---
@@ -55,31 +46,24 @@ cp ../quarto-rapport-mall/R/functions/visualisering_interaktiva_funktioner.R R/f
 title: "Din rapporttitel här"           # ÄNDRA
 author: "Ditt namn"                     # ÄNDRA
 date: today                             # Visar dagens datum automatiskt
-format:
-  html:
-    css: styles/styles.css
-    toc: true
-    toc-depth: 2
-    toc-title: "Innehåll:"
-    toc-location: right
-execute:
-  echo: false
-lang: sv
 ---
 ```
+
+**OBS:** De flesta inställningar finns nu i `_quarto.yml` och behöver inte upprepas i varje .qmd-fil!
 
 ### Byt rapporthuvud (valfritt)
 
 1. Ersätt `assets/rapporthuvud.svg` med din egen bild
 2. Eller behåll den befintliga
 
-### Ladda dina funktioner
+### Ladda funktioner
 
 I första R-chunken:
 
 ```r
-# Ladda nödvändiga funktioner
+# Ladda nödvändiga funktioner (finns i template/R/functions/)
 source("R/functions/visualisering_interaktiva_funktioner.R")
+source("R/functions/visualisering_tema_diagram.R")
 
 # Om du använder MASTERSCRIPT från Göteborgs Stad
 source("sökväg/till/MASTERSCRIPT.R", encoding = 'UTF-8')
@@ -96,7 +80,7 @@ library(glue)
 
 ## Steg 3: Skapa ditt första interaktiva diagram (2 minuter)
 
-### Mall för interaktivt linjediagram
+### Mall för interaktivt linjediagram med tema
 
 ```r
 # 1. SKAPA TOOLTIP
@@ -113,7 +97,7 @@ tooltip_data <- din_data |>
 plot_data <- din_data |>
   left_join(tooltip_data, by = "år")
 
-# 3. SKAPA GGPLOT MED _INTERACTIVE
+# 3. SKAPA GGPLOT MED _INTERACTIVE OCH TEMA
 plot <- plot_data |>
   ggplot(aes(x = år, y = befolkning)) +
   geom_line_interactive(
@@ -125,7 +109,7 @@ plot <- plot_data |>
     x = "",
     y = "Antal"
   ) +
-  theme_minimal()
+  tema_s_v  # Tema med vertikala stödlinjer för tidsserier
 
 # 4. GÖR INTERAKTIV MED NEDLADDNING
 skapa_interaktiv_plot(
@@ -136,6 +120,25 @@ skapa_interaktiv_plot(
   width = 8,
   height = 5
 )
+```
+
+### Välj rätt tema för ditt diagram
+
+```r
+# För kartor
++ tema_karta
+
+# För diagram utan stödlinjer (värden på staplar)
++ tema_inga_s
+
+# För tidsserier (vertikala linjer)
++ tema_s_v
+
+# För stapeldiagram (horisontella linjer)
++ tema_s_h
+
+# För scatterplots (båda riktningar)
++ tema_s_h_v
 ```
 
 ### Sätt in i din rapport
@@ -204,21 +207,23 @@ quarto render rapport_mall.qmd
 
 ## Nästa steg
 
-### Utforska exempel
+### Utforska mallen
 
-Se `examples/` för konkreta exempel:
-- `01_enkel_rapport.qmd` - Minimal version
-- `02_fullstandig_rapport.qmd` - Alla features
+Öppna `rapport_mall.qmd` och se:
+- Hur tooltips skapas
+- Hur olika teman används
+- Hur komponenter kombineras
 
 ### Läs dokumentation
 
+- [KOMPONENTGUIDE.md](KOMPONENTGUIDE.md) - Guide för alla komponenter
 - [funktioner_katalog.md](docs/funktioner_katalog.md) - Alla funktioner dokumenterade
 - [README.md](README.md) - Fullständig översikt
 
 ### Anpassa efter behov
 
 1. **Ändra färger**: Redigera `styles/styles.css`
-2. **Lägg till fler funktioner**: Utöka `visualisering_interaktiva_funktioner.R`
+2. **Lägg till fler funktioner**: Utöka filerna i `R/functions/`
 3. **Anpassa layout**: Ändra `_quarto.yml`
 
 ---
@@ -232,7 +237,9 @@ Se `examples/` för konkreta exempel:
 **Lösning:**
 ```r
 # Kontrollera att source() körs FÖRE användning
+# Funktionerna finns i template/R/functions/
 source("R/functions/visualisering_interaktiva_funktioner.R")
+source("R/functions/visualisering_tema_diagram.R")
 ```
 
 ### "Tooltip visas inte"
@@ -242,7 +249,7 @@ source("R/functions/visualisering_interaktiva_funktioner.R")
 **Lösning:**
 - Använd `geom_*_interactive()` istället för `geom_*()`
 - Se till att `aes(tooltip = tooltip_text, data_id = ...)` är mappat
-- Verifiera att `tooltip_data` har joimats korrekt
+- Verifiera att `tooltip_data` har joinats korrekt
 
 ### "CSS fungerar inte"
 
@@ -250,7 +257,7 @@ source("R/functions/visualisering_interaktiva_funktioner.R")
 
 **Lösning:**
 ```yaml
-# Kontrollera att sökvägen är korrekt i YAML
+# Kontrollera att sökvägen är korrekt i YAML (eller använd _quarto.yml)
 format:
   html:
     css: styles/styles.css  # Relativ sökväg från .qmd-fil
@@ -272,7 +279,7 @@ dir.create("temp_plots", showWarnings = FALSE)
 
 ### Arbetsgång
 
-1. ✅ Börja med mall
+1. ✅ Börja med rapport_mall.qmd som grund
 2. ✅ Testa ett enkelt diagram först
 3. ✅ Bygg vidare gradvis
 4. ✅ Rendera ofta för att fånga fel tidigt

@@ -3,9 +3,22 @@ title: "[ÄNDRA] Din rapporttitel här"
 editor: visual
 ---
 
+```{r}
+
+#| label: setup-datum
+#| include: false
+
+# Sätt rapportdatum
+rapport_datum <- as.Date("2024-12-12")
+```
+
 <!-- ============================================================ -->
+
 <!-- INSTRUKTIONER FÖR MALLEN -->
+
 <!-- ============================================================ -->
+
+```{=html}
 <!-- 
 Denna mall innehåller:
 - Rapporthuvud med bild
@@ -26,16 +39,27 @@ MARKERING:
 [OBS]    = Viktigt att tänka på
 [TIPS]   = Användbart att veta
 -->
+```
 
 <!-- ============================================================ -->
+
 <!-- RAPPORTHUVUD -->
+
 <!-- ============================================================ -->
+
 <!-- [ÄNDRA] Ersätt rapporthuvud.svg med din egen bild -->
+
 <!-- [TIPS] Bildformat: SVG, PNG eller JPG fungerar -->
 
 ::: {style="text-align: center;"}
 <img src="assets/rapporthuvud.svg" alt="Rapporthuvud" style="width: 100%; height: 5cm;"/>
 :::
+
+<p style="color: #666; font-size: 11pt; margin-top: 5px; margin-bottom: 5px;">
+
+**Utgiven:** `r format(rapport_datum, "%d %B %Y")`
+
+</p>
 
 ```{r}
 #| label: setup
@@ -44,14 +68,6 @@ MARKERING:
 # ============================================================
 # LADDA PAKET OCH FUNKTIONER
 # ============================================================
-# [ÄNDRA] Justera sökvägar efter din projektstruktur
-
-# Ladda visualiseringsfunktioner (OBLIGATORISKT)
-source("R/functions/visualisering_interaktiva_funktioner.R")
-
-# [OBS] Om du använder MASTERSCRIPT från Göteborgs Stad:
-# source("sökväg/till/MASTERSCRIPT.R", encoding = 'UTF-8')
-
 # Paket som behövs
 library(tidyverse)
 library(ggiraph)
@@ -63,6 +79,20 @@ library(glue)
 # library(sf)          # För kartor
 # library(readxl)      # För Excel-filer
 # library(lubridate)   # För datumhantering
+
+
+# [ÄNDRA] Justera sökvägar efter din projektstruktur
+
+# Ladda visualiseringsfunktioner (OBLIGATORISKT)
+source(here::here("R", "functions", "visualisering_interaktiva_funktioner.R"))
+
+# Laddar in teman för diagram (OBLIGATORISKT)
+source(here::here("R", "functions", "visualisering_tema_diagram.R"))
+
+# [OBS] Om du använder MASTERSCRIPT från Göteborgs Stad:
+# source("sökväg/till/MASTERSCRIPT.R", encoding = 'UTF-8')
+
+
 ```
 
 ```{r}
@@ -92,7 +122,9 @@ data <- tibble(
 ```
 
 <!-- ============================================================ -->
+
 <!-- HUVUDINNEHÅLL BÖRJAR HÄR -->
+
 <!-- ============================================================ -->
 
 # Din rapporttitel
@@ -102,8 +134,11 @@ data <- tibble(
 Detta är en mall för att skapa interaktiva Quarto-rapporter med enhetlig design och funktionalitet. Mallen innehåller färdiga komponenter för diagram, highlight-boxes och tabbar.
 
 <!-- ============================================================ -->
+
 <!-- HIGHLIGHT-BOX: ANVÄNDARINSTRUKTIONER -->
+
 <!-- ============================================================ -->
+
 <!-- [TIPS] Använd highlight-box för viktig information som ska synas tydligt -->
 
 ::: highlight-box
@@ -124,7 +159,9 @@ Detta är en mall för att skapa interaktiva Quarto-rapporter med enhetlig desig
 Här kan du sammanfatta rapportens huvudsakliga resultat i några meningar.
 
 <!-- ============================================================ -->
+
 <!-- EXEMPEL: ENKELT LINJEDIAGRAM -->
+
 <!-- ============================================================ -->
 
 ## Din första sektion
@@ -135,7 +172,6 @@ Här är ett exempel på hur du skapar ett interaktivt linjediagram:
 
 ```{r}
 #| label: exempel-linjediagram
-#| fig-cap: "Detta är en bildtext som beskriver diagrammet"
 
 # ============================================================
 # STEG 1: SKAPA TOOLTIP
@@ -162,13 +198,14 @@ plot_data <- data |>
 # ============================================================
 # STEG 3: SKAPA GGPLOT MED _INTERACTIVE GEOMS
 # ============================================================
-# [OBS] Använd alltid _interactive versioner (geom_line_interactive, etc.)
+# [OBS] Använd alltid _interactive versioner (geom_point_interactive, etc.)
+# [OBS] När vi använder linjediagram med punkter så gör vi punkterna interaktiva och inte linjerna
 # [OBS] Mappa tooltip och data_id i aes()
+# [TIPS] Använder färdiga teman för justeringar av rubrik, underrubriker, axlar etc
 
 plot <- plot_data |>
   ggplot(aes(x = år, y = befolkning)) +
-  geom_line_interactive(
-    aes(tooltip = tooltip_text, data_id = år),
+  geom_line(
     linewidth = 0.6,
     color = "#0076bc"
   ) +
@@ -179,8 +216,11 @@ plot <- plot_data |>
   ) +
   scale_y_continuous(
     labels = scales::comma_format(big.mark = " "),
-    expand = expansion(mult = c(0, 0.1))
+    expand = expansion(mult = c(0, 0.1)), 
+    limits = c(0, NA) # Lägger till att y axeln börjar på 0
   ) +
+  # Justerar x axeln så att den visar var tredje år
+  scale_x_continuous(breaks = seq(2015, 2024, by = 3)) + 
   labs(
     title = "Befolkningsutveckling över tid",
     subtitle = "Göteborg, 2015-2024",
@@ -188,7 +228,9 @@ plot <- plot_data |>
     y = "Antal invånare",
     caption = "Källa: SCB, med bearbetning av stadsledningskontoret"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  # Förinställt tema
+  tema_s_h
 
 # ============================================================
 # STEG 4: GÖR INTERAKTIV MED NEDLADDNINGSFUNKTION
@@ -206,12 +248,15 @@ skapa_interaktiv_plot(
   output_namn = "befolkning_utveckling",
   width = 8,
   height = 5,
-  hover_r = 3  # [TIPS] Gör punkter större vid hover
+  hover_r = 3, # [TIPS] Förhöj storleken på punkten vid hoovring
+  hover_inv_opacity = 0.6 # [TIPS] Minska effekten på resterande punkter
 )
 ```
 
 <!-- ============================================================ -->
+
 <!-- EXEMPEL: PANEL-TABSET MED FLERA DIAGRAM -->
+
 <!-- ============================================================ -->
 
 ## Jämförelser mellan regioner
@@ -244,23 +289,29 @@ tooltip_data <- data_regioner |>
     gruppvars = c("år"),
     grupp_labels = c(år = "År"),
     data_vars = c("region", "befolkning"),
-    data_labels = c(region = "", befolkning = "Befolkning"),
+    data_labels = c(region = "", befolkning = ""),
     data_format = c(region = "text", befolkning = "nummer")
   )
 
+# Joina med datasetet
 plot_data <- data_regioner |>
   left_join(tooltip_data, by = "år")
 
 # Plot
 plot_antal <- plot_data |>
   ggplot(aes(x = år, y = befolkning, color = region)) +
-  geom_line_interactive(
+  geom_line_interactive(linewidth = 0.6) +
+  geom_point_interactive(
     aes(tooltip = tooltip_text, data_id = år),
-    linewidth = 0.6
+    size = 2
   ) +
   scale_y_continuous(
-    labels = scales::comma_format(big.mark = " ")
+    labels = scales::comma_format(big.mark = " "),
+    expand = expansion(mult = c(0, 0.1)), 
+    limits = c(0, NA) # Lägger till att y axeln börjar på 0
   ) +
+  # Justerar x axeln så att den visar var tredje år
+  scale_x_continuous(breaks = seq(2015, 2024, by = 3)) + 
   labs(
     title = "Befolkningsutveckling",
     x = "",
@@ -268,14 +319,20 @@ plot_antal <- plot_data |>
     color = ""
   ) +
   theme_minimal() +
-  theme(legend.position = "top")
+  theme(legend.text = element_text(size = 12),
+    legend.position = "top",
+    legend.justification = "left",  
+    legend.box.spacing = unit(0, "pt")
+  ) +
+  tema_s_h
 
 skapa_interaktiv_plot(
   plot_objekt = plot_antal,
   export_data = plot_data,
   kolumn_mappning = c("År" = "år", "Befolkning" = "befolkning", "Region" = "region"),
   output_namn = "jamforelse_antal",
-  hover_r = 3
+  hover_r = 3, 
+  hover_inv_opacity = 0.6
 )
 ```
 
@@ -286,44 +343,70 @@ skapa_interaktiv_plot(
 
 # [TIPS] Här kan du visa samma data på ett annat sätt
 # Till exempel som andel eller procent
+andel_regioner <- data_regioner |> 
+  group_by(år) |> 
+  mutate(andel = befolkning / sum(befolkning) * 100) |> 
+  ungroup()
 
-plot_andel <- data_regioner |>
-  group_by(år) |>
-  mutate(andel = befolkning / sum(befolkning) * 100) |>
-  ungroup() |>
-  ggplot(aes(x = år, y = andel, fill = region)) +
-  geom_area_interactive(
-    aes(tooltip = paste0(region, ": ", round(andel, 1), "%"),
-        data_id = paste(år, region)),
-    alpha = 0.7
+# Skapa tooltip
+tooltip_data <- andel_regioner |>
+  skapa_tooltip(
+    gruppvars = c("år"),
+    grupp_labels = c(år = "År"),
+    data_vars = c("region", "andel"),
+    data_labels = c(region = "", andel = "Befolkning"),
+    data_format = c(region = "text", andel = "procent")
+  )
+
+
+# Joina tillbaka till huvuddataset
+plot_data <- andel_regioner |> 
+  left_join(tooltip_data, by = "år")
+
+plot_andel <- plot_data |> 
+  ggplot(aes(x = år, y = andel, color = region)) +
+  geom_line_interactive(linewidth = 0.6) +
+  geom_point_interactive(
+    aes(tooltip = tooltip_text, data_id = år),
+    size = 2
   ) +
+  scale_y_continuous(
+    labels = scales::comma_format(big.mark = " "),
+    expand = expansion(mult = c(0, 0.1)), 
+    limits = c(0, NA) # Lägger till att y axeln börjar på 0
+  ) +
+  # Justerar x axeln så att den visar var tredje år
+  scale_x_continuous(breaks = seq(2015, 2024, by = 3)) +
   labs(
     title = "Andel av total befolkning",
     x = "",
     y = "Andel (%)",
-    fill = ""
+    color = ""
   ) +
   theme_minimal() +
-  theme(legend.position = "top")
+  theme(legend.text = element_text(size = 12),
+    legend.position = "top",
+    legend.justification = "left",  
+    legend.box.spacing = unit(0, "pt")
+  ) +
+  tema_s_h
 
-# [OBS] För geom_area behöver vi annan approach till tooltip
-girafe(
-  ggobj = plot_andel,
-  width_svg = 8,
-  height_svg = 5,
-  options = list(
-    opts_hover(css = "fill-opacity: 1;"),
-    opts_tooltip(
-      css = "background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-      opacity = 1
-    )
-  )
+# Skapa interaktiv plot
+skapa_interaktiv_plot(
+  plot_objekt = plot_andel,
+  export_data = plot_data,
+  kolumn_mappning = c("År" = "år", "Andel" = "andel", "Region" = "region"),
+  output_namn = "jamforelse_andel",
+  hover_r = 3, 
+  hover_inv_opacity = 0.6
 )
 ```
 :::
 
 <!-- ============================================================ -->
+
 <!-- YTTERLIGARE SEKTIONER -->
+
 <!-- ============================================================ -->
 
 ## Detaljerad analys
@@ -337,7 +420,9 @@ Fortsätt bygga din rapport med fler sektioner, diagram och analyser.
 Du kan också använda subsektioner för att strukturera innehållet.
 
 <!-- ============================================================ -->
+
 <!-- EXEMPEL: STAPELDIAGRAM -->
+
 <!-- ============================================================ -->
 
 ```{r}
@@ -374,7 +459,8 @@ plot_stapel <- plot_data |>
     x = "",
     y = "Värde"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  tema_inga_s
 
 skapa_interaktiv_plot(
   plot_objekt = plot_stapel,
@@ -385,7 +471,9 @@ skapa_interaktiv_plot(
 ```
 
 <!-- ============================================================ -->
+
 <!-- AVSLUTANDE SEKTION -->
+
 <!-- ============================================================ -->
 
 ## Ytterligare information och kontakt
@@ -395,7 +483,7 @@ skapa_interaktiv_plot(
 
 För ytterligare frågor eller djupare analyser, kontakta:
 
-**E-post:** statistisk.analys@stadshuset.goteborg.se
+**E-post:** statistisk.analys\@stadshuset.goteborg.se
 
 **Webbplats:** [Statistik och analys](https://goteborg.se/wps/portal/enhetssida/statistik-och-analys)
 
@@ -403,8 +491,12 @@ För ytterligare frågor eller djupare analyser, kontakta:
 :::
 
 <!-- ============================================================ -->
+
 <!-- TIPS OCH TRICKS -->
+
 <!-- ============================================================ -->
+
+```{=html}
 <!-- 
 ANVÄNDBARA TIPS:
 
@@ -444,3 +536,4 @@ ANVÄNDBARA TIPS:
    - Använd beskrivande chunk labels
    - Kommentera komplicerad kod
 -->
+```
