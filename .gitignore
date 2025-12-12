@@ -1,0 +1,32 @@
+# RStudio files
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Quarto
+.quarto/
+_site/
+_book/
+*_files/           # ← DENNA RAD ignorerar alla *_files/ mappar
+*_cache/
+
+# R temporary files
+*.rds
+*.RData
+
+# Output som genereras av funktionerna
+temp_plots/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Data (avkommentera om känslig data)
+# data/raw/
+# data/processed/
+
+# Rendered outputs (avkommentera om du inte vill spara HTML-filer)
+# *.html
