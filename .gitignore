@@ -29,4 +29,4 @@ Thumbs.db
 # data/processed/
 
 # Rendered outputs (avkommentera om du inte vill spara HTML-filer)
-# *.html
+ *.html
