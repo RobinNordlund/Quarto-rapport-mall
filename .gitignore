@@ -30,3 +30,7 @@ Thumbs.db
 
 # Rendered outputs (avkommentera om du inte vill spara HTML-filer)
  *.html
+ 
+# Renderingar i template-mappen specifikt
+template/*.html
+template/*_files/
