@@ -145,8 +145,8 @@ Detta är en mall för att skapa interaktiva Quarto-rapporter med enhetlig desig
 ## Såhär använder du rapporten
 
 -   **Interaktiva diagram:** Placera muspekaren över datapunkter för detaljerad information
--   **Ladda ner:** Klicka på ![](images/menu-icon.png){width="20"} för att ladda ner diagram (PNG) eller data (Excel/CSV)
--   **Helskärm:** Använd ![](images/fullscreen-icon.png){width="20"} för att förstora diagram
+-   **Ladda ner:** Klicka på ![](assets/laddaner.png){width="25" height="15"} för att ladda ner diagram (PNG) eller data (Excel/CSV)
+-   **Helskärm:** Använd ![](assets/helskarm.png){width="20"} för att förstora diagram
 -   **Navigering:** Innehållsförteckningen till höger är klickbar
 
 <!-- [OBS] Ikoner behöver inte finnas - ta bort bildlänkarna om du inte har dem -->
